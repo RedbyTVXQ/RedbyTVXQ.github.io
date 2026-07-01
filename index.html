@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red by TVXQ — Đặt hàng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="paper-texture"></div>
+
+<header class="hero">
+  <div class="hero__ornament hero__ornament--left" aria-hidden="true">✦</div>
+  <div class="hero__ornament hero__ornament--right" aria-hidden="true">✦</div>
+  <p class="hero__eyebrow">Khô mix &middot; snack Hàn &middot; đồ ăn vặt handmade</p>
+  <h1 class="hero__title">Red <span class="hero__title-by">by</span> TVXQ</h1>
+  <p class="hero__tagline">Chọn món, ghi số lượng, Red gói liền tay cho bạn 🧡</p>
+</header>
+
+<main class="layout">
+
+  <!-- MENU -->
+  <section class="menu" aria-label="Thực đơn">
+    <h2 class="section-title"><span class="section-title__num">01</span> Chọn món &amp; số lượng</h2>
+    <div class="menu__grid" id="menuGrid"><!-- injected --></div>
+  </section>
+
+  <!-- ORDER SUMMARY (receipt) -->
+  <aside class="receipt" id="receiptCard" aria-label="Tóm tắt đơn hàng">
+    <div class="receipt__inner">
+      <p class="receipt__label">Phiếu tạm tính</p>
+      <div class="receipt__items" id="receiptItems">
+        <p class="receipt__empty">Chưa có món nào được chọn</p>
+      </div>
+      <div class="receipt__divider"></div>
+      <div class="receipt__total-row">
+        <span>Tổng cộng</span>
+        <span id="receiptTotal">0đ</span>
+      </div>
+    </div>
+    <div class="receipt__perf" aria-hidden="true"></div>
+  </aside>
+
+  <!-- CUSTOMER FORM -->
+  <section class="form-section" aria-label="Thông tin đặt hàng">
+    <h2 class="section-title"><span class="section-title__num">02</span> Thông tin của bạn</h2>
+
+    <form id="orderForm" novalidate>
+
+      <div class="field">
+        <label for="nameFb">Tên + nick Facebook <span class="req">*</span></label>
+        <input type="text" id="nameFb" name="nameFb" placeholder="VD: Nguyễn Thị Hạnh — fb.com/hanh.nt" required>
+      </div>
+
+      <div class="field">
+        <label for="address">Địa chỉ <span class="field__hint">(cho Red xin cả địa chỉ hành chính cũ + mới nhé)</span> <span class="req">*</span></label>
+        <textarea id="address" name="address" rows="2" placeholder="Số nhà, ngõ, phường/xã, quận/huyện, tỉnh/thành..." required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="phone">Số điện thoại <span class="req">*</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="09xxxxxxxx" required>
+      </div>
+
+      <div class="field field--payment">
+        <label>Hình thức thanh toán <span class="req">*</span></label>
+        <div class="payment-options" id="paymentOptions">
+          <label class="payment-card">
+            <input type="radio" name="payment" value="Chuyển khoản SHB: 6617041999 - CTK Nguyễn Thị Hạnh" required>
+            <span class="payment-card__body">
+              <span class="payment-card__title">Chuyển khoản ngân hàng</span>
+              <span class="payment-card__detail">SHB · 6617041999 · CTK Nguyễn Thị Hạnh</span>
+            </span>
+          </label>
+          <label class="payment-card">
+            <input type="radio" name="payment" value="Ship COD (chỉ áp dụng nội thành HN)" required>
+            <span class="payment-card__body">
+              <span class="payment-card__title">Ship COD</span>
+              <span class="payment-card__detail">Chỉ áp dụng cho khách ở Hà Nội</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field field--bill" id="billField" hidden>
+        <label for="billUpload">Ảnh bill chuyển khoản <span class="req">*</span></label>
+        <div class="upload-box" id="uploadBox">
+          <input type="file" id="billUpload" name="billUpload" accept="image/*">
+          <div class="upload-box__prompt" id="uploadPrompt">
+            <span class="upload-box__icon">⇪</span>
+            <span>Chạm để tải ảnh bill lên (tối đa 10MB)</span>
+          </div>
+          <img class="upload-box__preview" id="uploadPreview" alt="" hidden>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Ghi chú cho Red <span class="field__hint">(không bắt buộc)</span></label>
+        <textarea id="notes" name="notes" rows="2" placeholder="VD: giao giờ hành chính, gọi trước khi ship..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span id="submitBtnText">Gửi đơn cho Red</span>
+      </button>
+
+      <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+
+    </form>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Red by TVXQ — cảm ơn bạn đã ghé mua 🧡</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
