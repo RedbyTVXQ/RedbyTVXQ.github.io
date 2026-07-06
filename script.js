@@ -5,7 +5,7 @@
 // ⚠️ CONFIG — after deploying the Google Apps Script web app
 // (see google-apps-script.gs), paste its /exec URL here.
 const CONFIG = {
-  APPS_SCRIPT_URL: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby2_S2yOnrGZAHG3Ce8iDzE9Mjypy_P_8wX5PKv8IL-h3-8t3xR0BhdVWCBXzN8cYa_bA/exec",
 };
 
 const PRODUCTS = [
