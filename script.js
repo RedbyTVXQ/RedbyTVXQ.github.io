@@ -37,7 +37,7 @@ function renderMenu() {
     card.innerHTML = `
       <div class="dish__roundel" aria-hidden="true">${p.icon}</div>
       <div class="dish__body">
-        <p class="dish__name">${p.name}</p>
+        <p class="dish__name">${p.id} - ${p.name}</p>
         <span class="dish__price">${fmtVND(p.price)}</span><span class="dish__unit">/ ${p.unit}</span>
       </div>
       <div class="qty-stepper">
@@ -82,7 +82,7 @@ function renderReceipt() {
       total += sub;
       return `
         <div class="receipt__item">
-          <span class="receipt__item-name">${p.name}</span>
+          <span class="receipt__item-name">${p.id} - ${p.name}</span>
           <span class="receipt__item-qty">×${qty}</span>
           <span class="receipt__item-sub">${fmtVND(sub)}</span>
         </div>`;
@@ -169,7 +169,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   const total = chosen.reduce((sum, p) => sum + p.price * cart[p.id], 0);
-  const itemsText = chosen.map((p) => `${p.name} x${cart[p.id]}`).join("; ");
+  const itemsText = chosen.map((p) => `${p.id} - ${p.name} x${cart[p.id]}`).join("; ");
 
   const payload = {
     nameFb: form.nameFb.value.trim(),
@@ -228,3 +228,5 @@ form.addEventListener("submit", async (e) => {
 
 renderMenu();
 renderReceipt();
+
+
