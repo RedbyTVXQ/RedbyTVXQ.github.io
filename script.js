@@ -5,20 +5,20 @@
 // ⚠️ CONFIG — after deploying the Google Apps Script web app
 // (see google-apps-script.gs), paste its /exec URL here.
 const CONFIG = {
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby2_S2yOnrGZAHG3Ce8iDzE9Mjypy_P_8wX5PKv8IL-h3-8t3xR0BhdVWCBXzN8cYa_bA/exec",
+  APPS_SCRIPT_URL: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
 };
 
 const PRODUCTS = [
-  { id: "R1",  name: "Khô heo",                       price: 60000, unit: "200gr", icon: "🥩" },
-  { id: "R2",  name: "Khô gà",                         price: 60000, unit: "200gr", icon: "🍗" },
-  { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", icon: "🐻" },
-  { id: "R4",  name: "Khoai mật sấy",                  price: 50000, unit: "200gr", icon: "🍠" },
-  { id: "R5",  name: "Ngô cay",                        price: 35000, unit: "200gr", icon: "🌽" },
-  { id: "R6",  name: "Khô mix 3 vị",                   price: 80000, unit: "01 hũ", icon: "🍱" },
-  { id: "R7",  name: "Mực xé tẩm vị",                  price: 85000, unit: "01 hũ", icon: "🦑" },
-  { id: "R8",  name: "Cá bống tẩm vị",                 price: 70000, unit: "01 hũ", icon: "🐟" },
-  { id: "R9",  name: "Da cá trứng muối",               price: 60000, unit: "01 hũ", icon: "🥚" },
-  { id: "R10", name: "Rong biển cháy tỏi",              price: 70000, unit: "01 hũ", icon: "🌿" },
+  { id: "R1",  name: "Khô heo",                       price: 60000, unit: "200gr", img: "images/R1.jpg" },
+  { id: "R2",  name: "Khô gà",                         price: 60000, unit: "200gr", img: "images/R2.jpg" },
+  { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", img: "images/R3.jpg" },
+  { id: "R4",  name: "Khoai mật sấy",                  price: 50000, unit: "200gr", img: "images/R4.jpg" },
+  { id: "R5",  name: "Ngô cay",                        price: 35000, unit: "200gr", img: "images/R5.jpg" },
+  { id: "R6",  name: "Khô mix 3 vị",                   price: 80000, unit: "01 hũ", img: "images/R6.jpg" },
+  { id: "R7",  name: "Mực xé tẩm vị",                  price: 85000, unit: "01 hũ", img: "images/R7.jpg" },
+  { id: "R8",  name: "Cá bống tẩm vị",                 price: 70000, unit: "01 hũ", img: "images/R8.jpg" },
+  { id: "R9",  name: "Da cá trứng muối",               price: 60000, unit: "01 hũ", img: "images/R9.jpg" },
+  { id: "R10", name: "Rong biển cháy tỏi",              price: 70000, unit: "01 hũ", img: "images/R10.jpg" },
 ];
 
 const cart = {}; // { R1: qty }
@@ -35,9 +35,9 @@ function renderMenu() {
     const card = document.createElement("div");
     card.className = "dish";
     card.innerHTML = `
-      <div class="dish__roundel" aria-hidden="true">${p.icon}</div>
+      <div class="dish__roundel"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>
       <div class="dish__body">
-        <p class="dish__name">${p.id} - ${p.name}</p>
+        <p class="dish__name">${p.name}</p>
         <span class="dish__price">${fmtVND(p.price)}</span><span class="dish__unit">/ ${p.unit}</span>
       </div>
       <div class="qty-stepper">
@@ -82,7 +82,7 @@ function renderReceipt() {
       total += sub;
       return `
         <div class="receipt__item">
-          <span class="receipt__item-name">${p.id} - ${p.name}</span>
+          <span class="receipt__item-name">${p.name}</span>
           <span class="receipt__item-qty">×${qty}</span>
           <span class="receipt__item-sub">${fmtVND(sub)}</span>
         </div>`;
@@ -169,7 +169,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   const total = chosen.reduce((sum, p) => sum + p.price * cart[p.id], 0);
-  const itemsText = chosen.map((p) => `${p.id} - ${p.name} x${cart[p.id]}`).join("; ");
+  const itemsText = chosen.map((p) => `${p.name} x${cart[p.id]}`).join("; ");
 
   const payload = {
     nameFb: form.nameFb.value.trim(),
