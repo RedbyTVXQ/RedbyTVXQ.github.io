@@ -11,7 +11,7 @@ const CONFIG = {
 const PRODUCTS = [
   { id: "R1",  name: "Khô heo",                       price: 60000, unit: "200gr", icon: "🥩" },
   { id: "R2",  name: "Khô gà",                         price: 60000, unit: "200gr", icon: "🍗" },
-  { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", icon: "🐻" },
+  { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", icon: "🐻", soldOut: true },
   { id: "R4",  name: "Khoai mật sấy",                  price: 50000, unit: "200gr", icon: "🍠" },
   { id: "R5",  name: "Ngô cay",                        price: 35000, unit: "200gr", icon: "🌽" },
   { id: "R6",  name: "Khô mix 3 vị",                   price: 80000, unit: "01 hũ", icon: "🍱" },
@@ -33,27 +33,35 @@ function renderMenu() {
   menuGrid.innerHTML = "";
   PRODUCTS.forEach((p) => {
     const card = document.createElement("div");
-    card.className = "dish";
+    card.className = "dish" + (p.soldOut ? " dish--soldout" : "");
     card.innerHTML = `
       <div class="dish__roundel" aria-hidden="true">${p.icon}</div>
       <div class="dish__body">
-        <p class="dish__name">${p.name}</p>
+        <p class="dish__name">${p.name}${p.soldOut ? ' <span class="dish__badge" style="color:#b3261e;font-size:0.75em;font-weight:700;">(Hết hàng)</span>' : ""}</p>
         <span class="dish__price">${fmtVND(p.price)}</span><span class="dish__unit">/ ${p.unit}</span>
       </div>
       <div class="qty-stepper">
-        <button type="button" class="qty-btn" data-action="dec" data-id="${p.id}" aria-label="Giảm số lượng ${p.name}">–</button>
+        <button type="button" class="qty-btn" data-action="dec" data-id="${p.id}" aria-label="Giảm số lượng ${p.name}" ${p.soldOut ? "disabled" : ""}>–</button>
         <span class="qty-value" id="qty-${p.id}" data-qty-nonzero="false">0</span>
-        <button type="button" class="qty-btn" data-action="inc" data-id="${p.id}" aria-label="Tăng số lượng ${p.name}">+</button>
+        <button type="button" class="qty-btn" data-action="inc" data-id="${p.id}" aria-label="Tăng số lượng ${p.name}" ${p.soldOut ? "disabled" : ""}>+</button>
       </div>
     `;
+    if (p.soldOut) {
+      card.style.opacity = "0.55";
+      card.querySelectorAll(".qty-btn").forEach((b) => {
+        b.style.cursor = "not-allowed";
+      });
+    }
     menuGrid.appendChild(card);
   });
 }
 
 menuGrid.addEventListener("click", (e) => {
   const btn = e.target.closest(".qty-btn");
-  if (!btn) return;
+  if (!btn || btn.disabled) return;
   const id = btn.dataset.id;
+  const product = PRODUCTS.find((p) => p.id === id);
+  if (product && product.soldOut) return;
   const current = cart[id] || 0;
   const next = btn.dataset.action === "inc" ? current + 1 : Math.max(0, current - 1);
   cart[id] = next;
