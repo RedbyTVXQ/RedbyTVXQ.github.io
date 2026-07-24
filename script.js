@@ -2,21 +2,22 @@
    Red by TVXQ — Order form logic
    ============================================================ */
 
-// ⚠️ CONFIG — after deploying the Google Apps Script web app
-// (see google-apps-script.gs), paste its /exec URL here.
 const CONFIG = {
   APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby2_S2yOnrGZAHG3Ce8iDzE9Mjypy_P_8wX5PKv8IL-h3-8t3xR0BhdVWCBXzN8cYa_bA/exec",
+  // Published "Tồn kho" sheet, exported as CSV.
+  // Sheet columns: A = Món (tên món, phải khớp với PRODUCTS bên dưới), B = Tồn kho (số lượng)
+  INVENTORY_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSvIeJVT0yUnBfO6dDAyRm8vn1kp38Rclyi42pKR21zp4ZW7KT-O7VVgkJYogFlwxquXHoyz7z3NaxY/pub?gid=273743042&single=true&output=csv",
 };
 
 const PRODUCTS = [
   { id: "R1",  name: "Khô heo",                       price: 60000, unit: "200gr", icon: "🥩" },
   { id: "R2",  name: "Khô gà",                         price: 60000, unit: "200gr", icon: "🍗" },
-  { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", icon: "🐻", soldOut: true },
+  { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", icon: "🐻" },
   { id: "R4",  name: "Khoai mật sấy",                  price: 50000, unit: "200gr", icon: "🍠" },
   { id: "R5",  name: "Ngô cay",                        price: 35000, unit: "200gr", icon: "🌽" },
   { id: "R6",  name: "Khô mix 3 vị",                   price: 80000, unit: "01 hũ", icon: "🍱" },
   { id: "R7",  name: "Mực xé tẩm vị",                  price: 85000, unit: "01 hũ", icon: "🦑" },
-  { id: "R8",  name: "Cá bống tẩm vị",                 price: 70000, unit: "01 hũ", icon: "🐟", soldOut: true },
+  { id: "R8",  name: "Cá bống tẩm vị",                 price: 70000, unit: "01 hũ", icon: "🐟" },
   { id: "R9",  name: "Da cá trứng muối",               price: 60000, unit: "01 hũ", icon: "🥚" },
   { id: "R10", name: "Rong biển cháy tỏi",              price: 70000, unit: "01 hũ", icon: "🌿" },
 ];
@@ -24,6 +25,82 @@ const PRODUCTS = [
 const cart = {}; // { R1: qty }
 
 const fmtVND = (n) => n.toLocaleString("vi-VN") + "đ";
+
+/* ---------------- inventory sync ---------------- */
+
+// Normalize Vietnamese text for matching: lowercase, trim, strip accents.
+function normalizeName(s) {
+  return (s || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/\s+/g, " ");
+}
+
+// Minimal CSV line parser (handles quoted fields with commas).
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += c;
+      }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        row.push(field); field = "";
+        rows.push(row); row = [];
+      } else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim() !== ""));
+}
+
+async function syncInventory() {
+  if (!CONFIG.INVENTORY_CSV_URL || CONFIG.INVENTORY_CSV_URL.includes("PASTE_YOUR")) return;
+  try {
+    const res = await fetch(CONFIG.INVENTORY_CSV_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("Không tải được file tồn kho");
+    const text = await res.text();
+    const rows = parseCsv(text);
+    if (!rows.length) return;
+
+    // First row is header (Món, Tồn kho) — skip it.
+    const dataRows = rows.slice(1);
+    const stockByName = {};
+    dataRows.forEach((r) => {
+      const name = normalizeName(r[0]);
+      const qty = parseInt((r[1] || "0").toString().replace(/[^\d-]/g, ""), 10);
+      if (name) stockByName[name] = isNaN(qty) ? 0 : qty;
+    });
+
+    PRODUCTS.forEach((p) => {
+      const key = normalizeName(p.name);
+      if (Object.prototype.hasOwnProperty.call(stockByName, key)) {
+        p.stock = stockByName[key];
+        p.soldOut = stockByName[key] <= 0;
+      }
+      // If a product name isn't found in the sheet, leave it as-is
+      // (no stock tracking for that item) rather than assuming sold out.
+    });
+  } catch (err) {
+    console.error("Lỗi đồng bộ tồn kho:", err);
+    // Fail silently — menu still shows with whatever soldOut state was set before.
+  }
+}
 
 /* ---------------- render menu ---------------- */
 
@@ -168,6 +245,13 @@ form.addEventListener("submit", async (e) => {
 
   if (!form.reportValidity()) return;
 
+  // Guard against stale carts: re-check sold-out state right before submit.
+  const nowSoldOut = chosen.find((p) => p.soldOut);
+  if (nowSoldOut) {
+    setStatus(`"${nowSoldOut.name}" vừa hết hàng, bạn bỏ món này khỏi đơn giúp Red nhé!`, "err");
+    return;
+  }
+
   const paymentEl = form.querySelector('input[name="payment"]:checked');
   const isBank = paymentEl.value.startsWith("Chuyển khoản");
   if (isBank && !billBase64) {
@@ -236,3 +320,9 @@ form.addEventListener("submit", async (e) => {
 
 renderMenu();
 renderReceipt();
+
+// Fetch live inventory, then re-render menu with up-to-date sold-out states.
+syncInventory().then(() => {
+  renderMenu();
+  renderReceipt();
+});
