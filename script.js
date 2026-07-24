@@ -116,7 +116,7 @@ function renderMenu() {
       <div class="dish__body">
         <p class="dish__name">${p.name}${p.soldOut
           ? ' <span class="dish__badge" style="color:#b3261e;font-size:0.75em;font-weight:700;">(Hết hàng)</span>'
-          : (typeof p.stock === "number" ? ` <span class="dish__badge" style="color:#4a7c59;font-size:0.75em;font-weight:600;">(Còn ${p.stock})</span>` : "")}</p>
+          : (typeof p.stock === "number" ? ` <span class="dish__badge" id="stock-${p.id}" style="color:#4a7c59;font-size:0.75em;font-weight:600;">(Còn ${Math.max(0, p.stock - (cart[p.id] || 0))})</span>` : "")}</p>
         <span class="dish__price">${fmtVND(p.price)}</span><span class="dish__unit">/ ${p.unit}</span>
       </div>
       <div class="qty-stepper">
@@ -142,10 +142,28 @@ menuGrid.addEventListener("click", (e) => {
   const product = PRODUCTS.find((p) => p.id === id);
   if (product && product.soldOut) return;
   const current = cart[id] || 0;
-  const next = btn.dataset.action === "inc" ? current + 1 : Math.max(0, current - 1);
+
+  let next;
+  if (btn.dataset.action === "inc") {
+    // Don't let the cart exceed remaining stock, if we know the stock.
+    if (product && typeof product.stock === "number" && current >= product.stock) {
+      return;
+    }
+    next = current + 1;
+  } else {
+    next = Math.max(0, current - 1);
+  }
+
   cart[id] = next;
   document.getElementById(`qty-${id}`).textContent = next;
   document.getElementById(`qty-${id}`).dataset.qtyNonzero = next > 0 ? "true" : "false";
+
+  // Live-update the "(Còn X)" badge to reflect what's left after this cart selection.
+  if (product && typeof product.stock === "number") {
+    const badge = document.getElementById(`stock-${id}`);
+    if (badge) badge.textContent = `(Còn ${Math.max(0, product.stock - next)})`;
+  }
+
   renderReceipt();
 });
 
@@ -303,6 +321,11 @@ form.addEventListener("submit", async (e) => {
       cart[id] = 0;
       const el = document.getElementById(`qty-${id}`);
       if (el) { el.textContent = "0"; el.dataset.qtyNonzero = "false"; }
+      const product = PRODUCTS.find((p) => p.id === id);
+      if (product && typeof product.stock === "number") {
+        const badge = document.getElementById(`stock-${id}`);
+        if (badge) badge.textContent = `(Còn ${Math.max(0, product.stock)})`;
+      }
     });
     renderReceipt();
     billField.hidden = true;
