@@ -114,7 +114,9 @@ function renderMenu() {
     card.innerHTML = `
       <div class="dish__roundel" aria-hidden="true">${p.icon}</div>
       <div class="dish__body">
-        <p class="dish__name">${p.name}${p.soldOut ? ' <span class="dish__badge" style="color:#b3261e;font-size:0.75em;font-weight:700;">(Hết hàng)</span>' : ""}</p>
+        <p class="dish__name">${p.name}${p.soldOut
+          ? ' <span class="dish__badge" style="color:#b3261e;font-size:0.75em;font-weight:700;">(Hết hàng)</span>'
+          : (typeof p.stock === "number" ? ` <span class="dish__badge" style="color:#4a7c59;font-size:0.75em;font-weight:600;">(Còn ${p.stock})</span>` : "")}</p>
         <span class="dish__price">${fmtVND(p.price)}</span><span class="dish__unit">/ ${p.unit}</span>
       </div>
       <div class="qty-stepper">
