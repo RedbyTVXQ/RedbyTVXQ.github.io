@@ -11,15 +11,14 @@ const CONFIG = {
 
 const PRODUCTS = [
   { id: "R1",  name: "Khô heo",                       price: 60000, unit: "200gr", icon: "🥩" },
-  { id: "R2",  name: "Khô gà",                         price: 60000, unit: "200gr", icon: "🍗" },
   { id: "R3",  name: "Bánh gấu",                       price: 50000, unit: "200gr", icon: "🐻" },
   { id: "R4",  name: "Khoai mật sấy",                  price: 50000, unit: "200gr", icon: "🍠" },
   { id: "R5",  name: "Ngô cay",                        price: 35000, unit: "200gr", icon: "🌽" },
   { id: "R6",  name: "Khô mix 3 vị",                   price: 80000, unit: "01 hũ", icon: "🍱" },
   { id: "R7",  name: "Mực xé tẩm vị",                  price: 85000, unit: "01 hũ", icon: "🦑" },
-  { id: "R8",  name: "Cá bống tẩm vị",                 price: 70000, unit: "01 hũ", icon: "🐟" },
-  { id: "R9",  name: "Da cá trứng muối",               price: 60000, unit: "01 hũ", icon: "🥚" },
-  { id: "R10", name: "Rong biển cháy tỏi",              price: 70000, unit: "01 hũ", icon: "🌿" },
+  { id: "R8",  name: "Cá bống tẩm vị",                 price: 85000, unit: "01 hũ", icon: "🐟" },
+  { id: "R9",  name: "Da cá trứng muối",               price: 75000, unit: "01 hũ", icon: "🥚" },
+  { id: "R10", name: "Rong biển cháy tỏi",              price: 60000, unit: "01 hũ", icon: "🌿" },
 ];
 
 const cart = {}; // { R1: qty }
