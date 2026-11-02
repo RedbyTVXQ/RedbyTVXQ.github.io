@@ -314,7 +314,7 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify(payload),
     });
 
-    setStatus("Đã gửi đơn thành công! Red sẽ liên hệ xác nhận sớm nhất 🧡", "ok");
+    setStatus("Đã gửi đơn thành công 🧡", "ok");
     form.reset();
     Object.keys(cart).forEach((id) => {
       cart[id] = 0;
